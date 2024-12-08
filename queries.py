@@ -1,6 +1,9 @@
 '''
 Contains all the 22 queries in string format
-Variable QUERY_LIST contains all 22 queries
+Variable
+        - QUERY_DICT contains all 22 queries
+        - QUERY_DICT_SHORT contains fast queries
+        - QUERY_DICT_LONG contains long queries
 '''
 
 Q1 = '''select
@@ -669,8 +672,19 @@ Q22 = '''select
                 cntrycode;'''
 
 
-QUERY_LIST = [
-        Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10,
-        Q11, Q12, Q13, Q14, Q15, Q16, Q17, Q18, Q19, Q20,
-        Q21, Q22
-]
+QUERY_DICT = {
+        1:Q1, 2:Q2, 3:Q3, 4:Q4, 5:Q5, 6:Q6, 7:Q7, 8:Q8, 9:Q9, 10:Q10,
+        11:Q11, 12:Q12, 13:Q13, 14:Q14, 15:Q15, 16:Q16, 17:Q17, 18:Q18, 19:Q19, 20:Q20,
+        21:Q21, 22:Q22
+}
+# Short execution times (< 10 secs. single core)
+QUERY_DICT_SHORT = {
+        1:Q1, 2:Q2, 3:Q3, 4:Q4, 5:Q5, 6:Q6, 7:Q7, 8:Q8, 9:Q9, 10:Q10,
+        11:Q11, 12:Q12, 13:Q13, 14:Q14, 15:Q15, 16:Q16, 18:Q18, 19:Q19,
+        21:Q21
+}
+
+# Long execution times (> 15 mins. single core)
+QUERY_DICT_LONG = {
+        17:Q17, 20:Q20, 22:Q22
+}
