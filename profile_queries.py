@@ -15,11 +15,11 @@ import gc
 import csv
 
 # Constants
-DB_FILE = 'file:data/tpch.db?mode=ro' # read only mode
-SAVE_DIR = './save/profile/'
-LOG_COLS = ['query','run','elapsed_time','cpu','ram', 'swap'] # TODO add disk, io blocking as well
+DB_FILE = 'file:data/tpch.db' 
+SAVE_DIR = './save/test/'
+LOG_COLS = ['query','run','elapsed_time','cpu','ram', 'swap', 'disk_read', 'disk_write'] 
 MAX_RUNS = 1
-LOG_FREQ = 0.1 # in seconds 
+LOG_FREQ = 0.01 # in seconds 
 
 def parse_args():
     # parse args
@@ -45,10 +45,19 @@ def execute_query(query:str, con:Connection, q: Queue):
 
 def get_stats_row(query_process, elapsed_time, query_num, run_num):
     # 'query,run,elapsed_time,cpu,ram,swap'
-    cpu_usage = query_process.cpu_percent()
-    # convert to MB
-    mem_usage_ram = query_process.memory_info().rss*1e-6
-    mem_usage_swap = query_process.memory_info().vms*1e-6 - mem_usage_ram
+    with query_process.oneshot():
+        cpu_usage = query_process.cpu_percent()
+        # RAM 
+        # convert to MB
+        mem_usage_ram = query_process.memory_info().rss*1e-6 
+        mem_usage_swap = query_process.memory_info().vms*1e-6 - mem_usage_ram
+        # Disk IO
+        # convert to MB (requires root.)
+        # disk_read = query_process.io_counters().read_bytes*1e-6 # cumulative
+        # disk_write = query_process.io_counters().write_bytes*1e-6 # cumulative
+
+
+    # return [query_num, run_num, elapsed_time, cpu_usage, mem_usage_ram, mem_usage_swap, disk_read, disk_write]
     return [query_num, run_num, elapsed_time, cpu_usage, mem_usage_ram, mem_usage_swap]
 
 # records resource usage/metrics for a single query
@@ -89,8 +98,7 @@ if __name__ == "__main__":
     # connect to tpc-h db
     con = sqlite3.connect(DB_FILE, uri=True)
     q = Queue()
-    # TODO add delay between each run
-    # execute each query in order
+
     try:
         with open(filename, mode='w') as csv_file:
             csv_writer = csv.writer(csv_file)
